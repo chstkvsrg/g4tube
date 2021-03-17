@@ -26,20 +26,20 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4NistManager* nistMan = G4NistManager::Instance();
 
   // --- volumes ---
-  // ñîçäàåì ãåîìåòðèþ
-  G4double saSize = 3*cm;    // ðàçìåð îáðàçöà  
-  G4double detDiam = 3*cm;   // äèàìåòð äåòåêòîðà
-  G4double detThick = 2*cm;  // òîëùèíà äåòåêòîðà
-  G4double gap1 = 5*mm;      // ðàññòîÿíèå îò èñòî÷íèêà äî îáðàçöà
-  G4double gap2 = 25*mm;     // ðàññòîÿíèå îò îáðàçöà äî äåòåêòîðà  
+  // ÑÐ¾Ð·Ð´Ð°ÐµÐ¼ Ð³ÐµÐ¾Ð¼ÐµÑ‚Ñ€Ð¸ÑŽ
+  G4double saSize = 3*cm;    // Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¾Ð±Ñ€Ð°Ð·Ñ†Ð°  
+  G4double detDiam = 3*cm;   // Ð´Ð¸Ð°Ð¼ÐµÑ‚Ñ€ Ð´ÐµÑ‚ÐµÐºÑ‚Ð¾Ñ€Ð°
+  G4double detThick = 2*cm;  // Ñ‚Ð¾Ð»Ñ‰Ð¸Ð½Ð° Ð´ÐµÑ‚ÐµÐºÑ‚Ð¾Ñ€Ð°
+  G4double gap1 = 5*mm;      // Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð¾Ñ‚ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸ÐºÐ° Ð´Ð¾ Ð¾Ð±Ñ€Ð°Ð·Ñ†Ð°
+  G4double gap2 = 25*mm;     // Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð¾Ñ‚ Ð¾Ð±Ñ€Ð°Ð·Ñ†Ð° Ð´Ð¾ Ð´ÐµÑ‚ÐµÐºÑ‚Ð¾Ñ€Ð°  
 
   G4Material* Empty_mat = nistMan->FindOrBuildMaterial("G4_Galactic");  
 
-  // ìèðîâîé îáúåì â âèäå ïàðàëëåëåïèïåäà
+  // Ð¼Ð¸Ñ€Ð¾Ð²Ð¾Ð¹ Ð¾Ð±ÑŠÐµÐ¼ Ð² Ð²Ð¸Ð´Ðµ Ð¿Ð°Ñ€Ð°Ð»Ð»ÐµÐ»ÐµÐ¿Ð¸Ð¿ÐµÐ´Ð°
   G4Box* world_box = new G4Box("world", (saSize + detDiam)/2 + 1*cm, (saSize + detDiam)/2 + 1*cm, gap1 + gap2 + detThick/2 + 1*cm);
-  // çàïîëíÿåì åãî âîçäóõîì
+  // Ð·Ð°Ð¿Ð¾Ð»Ð½ÑÐµÐ¼ ÐµÐ³Ð¾ Ð²Ð¾Ð·Ð´ÑƒÑ…Ð¾Ð¼
   G4LogicalVolume* world_log = new G4LogicalVolume(world_box, Empty_mat, "world");
-  // è ïîìåùàåì â íà÷àëî êîîðäèíàò
+  // Ð¸ Ð¿Ð¾Ð¼ÐµÑ‰Ð°ÐµÐ¼ Ð² Ð½Ð°Ñ‡Ð°Ð»Ð¾ ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚
   G4VPhysicalVolume* world_phys = new G4PVPlacement(0, G4ThreeVector(), world_log, "world", 0, false, 0);
 
 
@@ -49,14 +49,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   filter   = createFilter(FilterParams(), world_log);
   
 //  // --- visualisation ---
-//  // îòêëþ÷àåì îòîáðàæåíèå ìèðîâîãî îáúåìà
+//  // Ð¾Ñ‚ÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð¼Ð¸Ñ€Ð¾Ð²Ð¾Ð³Ð¾ Ð¾Ð±ÑŠÐµÐ¼Ð°
 //  //world_log->SetVisAttributes(G4VisAttributes::Visible);
-//  // à äëÿ îáðàçöà è äåòåêòîðà çàäàåì öâåòà îòîáðàæåíèÿ
-//  // (ïî óìîë÷àíèþ âñå ýëåìåíòû ãåîìåòðèè îêðàøåíû â ñåðûé öâåò)
+//  // Ð° Ð´Ð»Ñ Ð¾Ð±Ñ€Ð°Ð·Ñ†Ð° Ð¸ Ð´ÐµÑ‚ÐµÐºÑ‚Ð¾Ñ€Ð° Ð·Ð°Ð´Ð°ÐµÐ¼ Ñ†Ð²ÐµÑ‚Ð° Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ
+//  // (Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ Ð²ÑÐµ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñ‹ Ð³ÐµÐ¾Ð¼ÐµÑ‚Ñ€Ð¸Ð¸ Ð¾ÐºÑ€Ð°ÑˆÐµÐ½Ñ‹ Ð² ÑÐµÑ€Ñ‹Ð¹ Ñ†Ð²ÐµÑ‚)
 
 
 
-  // âîçâðàùàåì óêàçàòåëü íà ìèðîâîé îáúåì
+  // Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° Ð¼Ð¸Ñ€Ð¾Ð²Ð¾Ð¹ Ð¾Ð±ÑŠÐµÐ¼
   return world_phys;
 }
 
@@ -82,7 +82,7 @@ G4VPhysicalVolume *DetectorConstruction::createWindow(const DetectorConstruction
 {
     G4NistManager* nistMan = G4NistManager::Instance();
     G4Material* anodeMaterial = nistMan->FindOrBuildMaterial("G4_Be");
-    G4Tubs* window_tube = new G4Tubs("window", 0, params.size/2, params.thick, 0, 360*deg);
+    G4Tubs* window_tube = new G4Tubs("window", 0, params.size/2, params.thick/2, 0, 360*deg);
     G4LogicalVolume* window_log = new G4LogicalVolume(window_tube, anodeMaterial, "window");
 
     G4RotationMatrix* pRot = new G4RotationMatrix();
@@ -97,7 +97,7 @@ G4VPhysicalVolume *DetectorConstruction::createFilter(const DetectorConstruction
 {
     G4NistManager* nistMan = G4NistManager::Instance();
     G4Material* anodeMaterial = nistMan->FindOrBuildMaterial("G4_Al");
-    G4Tubs* filter_tube = new G4Tubs("filter", 0, params.size/2, params.thick, 0, 360*deg);
+    G4Tubs* filter_tube = new G4Tubs("filter", 0, params.size/2, params.thick/2, 0, 360*deg);
     G4LogicalVolume* filter_log = new G4LogicalVolume(filter_tube, anodeMaterial, "filter");
 
     G4RotationMatrix* pRot = new G4RotationMatrix();
@@ -112,11 +112,11 @@ G4VPhysicalVolume *DetectorConstruction::createDetector(const DetectorConstructi
 {
     G4NistManager* nistMan = G4NistManager::Instance();
     G4Material* detMaterial = nistMan->FindOrBuildMaterial("G4_Galactic");
-    // äåòåêòîð â âèäå öèëèíäðà
+    // Ð´ÐµÑ‚ÐµÐºÑ‚Ð¾Ñ€ Ð² Ð²Ð¸Ð´Ðµ Ñ†Ð¸Ð»Ð¸Ð½Ð´Ñ€Ð°
     G4Tubs* det_tube = new G4Tubs("detector", 0, params.size/2, params.thick/2, 0, 360*deg);
     G4LogicalVolume* det_log = new G4LogicalVolume(det_tube, detMaterial, "detector");
 
-    // ïîìåùàåì åãî â ìèðîâîé îáúåì
+    // Ð¿Ð¾Ð¼ÐµÑ‰Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ð² Ð¼Ð¸Ñ€Ð¾Ð²Ð¾Ð¹ Ð¾Ð±ÑŠÐµÐ¼
     G4RotationMatrix* pRot = new G4RotationMatrix();
     pRot->rotateX(params.angle);
     G4VPhysicalVolume* det_phys = new G4PVPlacement(pRot, params.pos, det_log, "detector", parent, false, 0);

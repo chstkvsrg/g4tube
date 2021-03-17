@@ -11,13 +11,13 @@
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
-  // ñîçäàåì èñòî÷íèê ÷àñòèö
-  // èñòî÷íèê èñïóñêàåò ïî îäíîé ÷àñòèöå
+  // ÑĞ¾Ğ·Ğ´Ğ°ĞµĞ¼ Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸Ğº Ñ‡Ğ°ÑÑ‚Ğ¸Ñ†
+  // Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸Ğº Ğ¸ÑĞ¿ÑƒÑĞºĞ°ĞµÑ‚ Ğ¿Ğ¾ Ğ¾Ğ´Ğ½Ğ¾Ğ¹ Ñ‡Ğ°ÑÑ‚Ğ¸Ñ†Ğµ
   particleGun = new G4ParticleGun(1);
 
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particle = particleTable->FindParticle("e-");
-  // óñòàíàâëèâàåì òèï è ıíåğãèş ÷àñòèö, êîîğäèíàòû ïîëîæåíèÿ èñòî÷íèêà
+  // ÑƒÑÑ‚Ğ°Ğ½Ğ°Ğ²Ğ»Ğ¸Ğ²Ğ°ĞµĞ¼ Ñ‚Ğ¸Ğ¿ Ğ¸ ÑĞ½ĞµÑ€Ğ³Ğ¸Ñ Ñ‡Ğ°ÑÑ‚Ğ¸Ñ†, ĞºĞ¾Ğ¾Ñ€Ğ´Ğ¸Ğ½Ğ°Ñ‚Ñ‹ Ğ¿Ğ¾Ğ»Ğ¾Ğ¶ĞµĞ½Ğ¸Ñ Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸ĞºĞ°
   if (particle->GetParticleName() == "e-" ) {
   particleGun->SetParticleDefinition(particle);
   particleGun->SetParticleEnergy(160*keV);
@@ -34,7 +34,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
   particleGun->SetParticleMomentumDirection( G4ThreeVector(0,0,1) );
-  // èñòî÷íèê èñïóñêàåò îäíó ÷àñòèöó
+  // Ğ¸ÑÑ‚Ğ¾Ñ‡Ğ½Ğ¸Ğº Ğ¸ÑĞ¿ÑƒÑĞºĞ°ĞµÑ‚ Ğ¾Ğ´Ğ½Ñƒ Ñ‡Ğ°ÑÑ‚Ğ¸Ñ†Ñƒ
   particleGun->GeneratePrimaryVertex(event);
 }
 

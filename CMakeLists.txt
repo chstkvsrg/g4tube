@@ -3,7 +3,7 @@
 # Setup the project
 #
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(spectre_tg)
+project(xtube)
 
 #----------------------------------------------------------------------------
 #
@@ -38,19 +38,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(spectre_tg spectre_tg.cc ${sources} ${headers})
-target_link_libraries(spectre_tg ${Geant4_LIBRARIES})
+add_executable(xtube xtube.cpp ${sources} ${headers})
+target_link_libraries(xtube ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory
 #
-set(spectre_tg_SCRIPTS
+set(xtube_SCRIPTS
   init_vis.mac
   run.mac
   vis.mac
   )
 
-foreach(_script ${spectre_tg_SCRIPTS})
+foreach(_script ${xtube_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
@@ -67,4 +67,4 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS spectre_tg DESTINATION bin )
+install(TARGETS xtube DESTINATION bin )

@@ -28,8 +28,8 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
 void RunAction::EndOfRunAction(const G4Run* )
 {
-  // сохраняем гистограмму в файл
-  // второй параметр - первая строка файла
+  // СЃРѕС…СЂР°РЅСЏРµРј РіРёСЃС‚РѕРіСЂР°РјРјСѓ РІ С„Р°Р№Р»
+  // РІС‚РѕСЂРѕР№ РїР°СЂР°РјРµС‚СЂ - РїРµСЂРІР°СЏ СЃС‚СЂРѕРєР° С„Р°Р№Р»Р°
   stampFinish_ = QDateTime::currentDateTime().toString("yyyyMMdd-hh:mm:ss");
 
   QString name = QString("h1_%1_%2.csv").arg(stampBegin_).arg(stampFinish_);
