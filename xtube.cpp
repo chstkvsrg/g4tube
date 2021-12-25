@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   // создание класса для управления моделированием
   //G4RunManager* runManager = new G4RunManager;
   G4MTRunManager* runManager = new G4MTRunManager;
-  runManager->SetNumberOfThreads(2);
+  runManager->SetNumberOfThreads(24);
 
   // подключение обязательных классов: описание частиц, процессов, геометрии и источника  
   runManager->SetUserInitialization(new DetectorConstruction());

@@ -1,0 +1,42 @@
+#
+# Sets some default verbose
+#
+/control/verbose 2
+/run/verbose 2
+#
+# Create a scene handler for a specific graphics system
+# (Edit the next line(s) to choose another graphics system)
+#
+
+# conf
+
+
+/vis/open OGLSQt 600x600-0+0
+#
+#
+# draw scene
+#
+/vis/drawVolume
+#
+#/vis/viewer/set/viewpointThetaPhi 90 180 deg
+#/vis/viewer/zoom 1.2
+#
+# for drawing the tracks
+/vis/scene/add/trajectories
+# (if too many tracks cause core dump => /tracking/storeTrajectory 0)
+# for drawing the hits, uncomment next line
+# /vis/scene/add/hits
+# (if you prefer refreshing each event, comment out next line)
+/vis/scene/endOfEventAction accumulate
+#
+#
+
+/vis/viewer/set/hiddenEdge true
+/vis/viewer/set/style surface
+
+/session/start
+
+
+
+
+

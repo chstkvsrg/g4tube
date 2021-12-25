@@ -1,0 +1,13 @@
+package "template"
+purpose "Makes something"
+version "0.0"   # don't use version if you're using automake
+
+option  "output"         o "Output directory"          string      optional   default="./OUTPUT"
+option  "mac"            m "Mac file to execute"       string      optional   default=""
+option  "ncores"         n "Number of cores to use"    int         optional   default="4"
+option  "target"         t "Execution target" values="CorePhantom","CoreVoxel" enum no default="CorePhantom"
+option  "holder"         h "With Core Holder"          flag        off
+option  "angle"          a "Angle"                     float       optional   default="0"
+option  "distributed"    d "Distrubuted execution"     flag        off
+option  "dispatcher"     - "dispatcher/unit"           flag        off
+option  "with-update"    - "Whether update of units is needed" flag off

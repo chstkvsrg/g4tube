@@ -1,0 +1,10 @@
+
+
+#
+#/control/verbose 2
+#/tracking/verbose 2
+#
+
+/run/stepByStepBeamOn 500000 500000
+
+
