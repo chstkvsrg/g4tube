@@ -10,12 +10,15 @@
 #include "G4Tubs.hh"
 #include "G4LogicalVolume.hh"
 
+#include "G4PVReplica.hh"
 #include "G4PVPlacement.hh"
 #include "G4RotationMatrix.hh"
 #include "G4NistManager.hh"
 #include "globals.hh"
 #include "G4VisAttributes.hh" 
 #include "G4SDManager.hh"
+
+#include "Detector.hh"
 
 DetectorConstruction::DetectorConstruction() {}
 
@@ -45,8 +48,65 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   anode    = createAnode(AnodeParams(), world_log);
   window   = createWindow(WindowParams(), world_log);
-  detector = createDetector(DetectorParams(), world_log);
-  filter   = createFilter(FilterParams(), world_log);
+
+
+  G4double linesNum = 1;
+  G4double columnesNum = 6;
+  G4double detectorCellX = 70*mm;
+  G4double detectorCellY = 3*mm;
+  G4double detector_depth = 1*mm;
+  G4double detectorLength = detectorCellY*columnesNum;
+
+  G4ThreeVector detPos(0, -28.2*mm, 20*mm + tan(10*deg)*28.2 - detectorLength/2);
+
+  G4RotationMatrix* rot = new G4RotationMatrix();
+  rot->rotateX(90*deg);
+
+  Detector *detectorFromStripes = new Detector(world_log,
+                                               detPos,
+                                               rot,
+                                               detector_depth,
+                                               detectorCellX,
+                                               detectorCellY,
+                                               linesNum,
+                                               columnesNum
+                                               );
+
+  detectorFromStripes->Construct();
+  /*
+  DetectorParams2 dp2 = DetectorParams2();
+  dp2.name = "detector1";
+  dp2.height = 10.263*2*mm;
+  dp2.width = 3*mm;
+
+  G4double firstPos = dp2.pos.getZ();
+
+  detector = createDetector2(dp2, world_log);
+
+  dp2.name = "detector2";
+  dp2.pos.setZ(firstPos - dp2.width);
+  createDetector2(dp2, world_log);
+
+  dp2.name = "detector3";
+  dp2.pos.setZ(firstPos - dp2.width*2);
+  createDetector2(dp2, world_log);
+
+  dp2.name = "detector4";
+  dp2.pos.setZ(firstPos - dp2.width*3);
+  createDetector2(dp2, world_log);
+
+  dp2.name = "detector5";
+  dp2.pos.setZ(firstPos - dp2.width*4);
+  createDetector2(dp2, world_log);
+
+  dp2.name = "detector6";
+  dp2.pos.setZ(firstPos - dp2.width*5);
+  createDetector2(dp2, world_log);
+
+  */
+
+
+  //filter   = createFilter(FilterParams(), world_log);
   
 //  // --- visualisation ---
 //  // отключаем отображение мирового объема
@@ -126,6 +186,26 @@ G4VPhysicalVolume *DetectorConstruction::createDetector(const DetectorConstructi
     return det_phys;
 }
 
+G4VPhysicalVolume *DetectorConstruction::createDetector2(const DetectorParams2 &params, G4LogicalVolume *parent)
+{
+    G4NistManager* nistMan = G4NistManager::Instance();
+    G4Material* detMaterial = nistMan->FindOrBuildMaterial("G4_Galactic");
+
+    // детектор в виде паралеллепипеда
+    G4Box* det_tube = new G4Box(params.name, params.height/2, params.width/2, params.thick/2);
+    G4LogicalVolume* det_log = new G4LogicalVolume(det_tube, detMaterial, params.name);
+
+    // помещаем его в мировой объем
+    G4RotationMatrix* pRot = new G4RotationMatrix();
+    pRot->rotateX(params.angle);
+    G4VPhysicalVolume* det_phys = new G4PVPlacement(pRot, params.pos, det_log, params.name, parent, false, 0);
+
+    det_log->SetVisAttributes(new G4VisAttributes(G4Colour::Blue()));
+
+    return det_phys;
+
+}
+
 void DetectorConstruction::ConstructSDandField()
 {
     // Sensitive detectors
@@ -135,5 +215,7 @@ void DetectorConstruction::ConstructSDandField()
     G4SDManager::GetSDMpointer()->AddNewDetector(SDCore);
 
     // Setting SD to all logical volumes with the same name
-    SetSensitiveDetector("detector", SDCore);
+    SetSensitiveDetector("DetectorCell", SDCore);
+
+
 }

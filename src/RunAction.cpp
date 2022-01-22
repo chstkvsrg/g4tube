@@ -13,7 +13,12 @@ RunAction::RunAction() {
     auto analysisManager = G4AnalysisManager::Instance();
     G4cout << "Using " << analysisManager->GetType() << G4endl;
     analysisManager->SetVerboseLevel(0);
-    analysisManager->CreateH1("Energy","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy0","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy1","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy2","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy3","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy4","Kinetic energy", 1000, 0., 225*keV,"keV");
+    analysisManager->CreateH1("Energy5","Kinetic energy", 1000, 0., 225*keV,"keV");
 }
 
 RunAction::~RunAction() {

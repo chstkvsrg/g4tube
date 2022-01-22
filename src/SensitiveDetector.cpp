@@ -35,12 +35,20 @@ G4bool SensitiveDetector::ProcessHits(G4Step* step,
     {
         step->GetTrack()->SetTrackStatus(fStopAndKill);
         return false;
-    }
+    }    
+
+    //G4int X = step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
+    G4int Y = step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(1);
 
     auto analysisManager = G4AnalysisManager::Instance();
-    analysisManager->FillH1(0, edep);
+    analysisManager->FillH1(Y, edep);
 
     step->GetTrack()->SetTrackStatus(fStopAndKill);
+
+    //////
+    ///auto sinogram = Sinogram::Instance();
+    ///sinogram->FillSinogram(X, Y, edep);
+
     return true;
 
 }
