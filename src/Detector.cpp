@@ -7,7 +7,6 @@
 
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
-#include "G4AnyType.hh"
 
 #include "G4Box.hh"
 #include "G4Tubs.hh"

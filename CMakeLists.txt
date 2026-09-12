@@ -2,7 +2,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(xtube)
 
 #----------------------------------------------------------------------------
@@ -10,10 +10,12 @@ project(xtube)
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
 #  find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/csg/dev/thirdparty/geant4.10.06M/lib")
-   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/xeon/Geant4MT/Installation/lib")
+   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/user/geant4/11.4.1/lib/cmake/Geant4" "/home/user/geant4/11.4.1/lib")
 else()
   find_package(Geant4 REQUIRED)
 endif()
+
+find_package(Qt6 COMPONENTS Core REQUIRED)
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
@@ -32,14 +34,14 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/inclu
 # C++ standart
 # 
 #
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(xtube xtube.cpp ${sources} ${headers})
-target_link_libraries(xtube ${Geant4_LIBRARIES})
+target_link_libraries(xtube ${Geant4_LIBRARIES} Qt6::Core)
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory
