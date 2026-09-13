@@ -30,9 +30,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/*.h)
 
-# Exclude WIP sources (not yet finished / not part of the migration)
-list(REMOVE_ITEM sources ${PROJECT_SOURCE_DIR}/src/AnodeMessenger.cpp)
-
 #----------------------------------------------------------------------------
 # C++ standart
 # 
@@ -52,6 +49,7 @@ target_link_libraries(xtube ${Geant4_LIBRARIES} Qt6::Core)
 set(xtube_SCRIPTS
   init_vis.mac
   run.mac
+  anode.mac
   vis.mac
   )
 

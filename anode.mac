@@ -1,0 +1,20 @@
+# Example: parametric anode via UI commands.
+# Set these BEFORE /run/initialize (or any time before a beam run,
+# then all set* commands take effect on the NEXT geometry build).
+#
+# Material name: any G4 NIST name, e.g. G4_W, G4_Cu, G4_Mo, G4_Al, G4_Be
+/xtube/anode/setMaterial G4_Cu
+
+# Thickness of the anode plate (default 5 mm)
+/xtube/anode/setThickness 2 mm
+
+# Tilt of the anode plane relative to the beam direction:
+#   angle = 0 deg  -> plate perpendicular to the electron beam
+#   angle = 45 deg -> beam grazes the plate at 45 deg (default 11 deg)
+/xtube/anode/setAngle 20 deg
+
+/run/initialize
+
+/gun/particle e-
+/gun/energy 160 keV
+/run/beamOn 1000

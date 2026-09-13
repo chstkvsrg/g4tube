@@ -19,13 +19,46 @@
 #include "G4SDManager.hh"
 
 #include "Detector.hh"
+#include "AnodeMessenger.hh"
 
-DetectorConstruction::DetectorConstruction() {}
+#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4SolidStore.hh"
+#include "G4GeometryManager.hh"
 
-DetectorConstruction::~DetectorConstruction() {}
+DetectorConstruction::DetectorConstruction()
+{
+    fAnodeMessenger = new AnodeMessenger(this);
+    fWorldPhys = nullptr;
+    fSDCore    = nullptr;
+    fDetectorStripes = nullptr;
+}
+
+DetectorConstruction::~DetectorConstruction()
+{
+    delete fDetectorStripes;
+    delete fAnodeMessenger;
+}
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {  
+  // на пересборке геометрии (reinitializeGeometry) удаляем старую
+  if ( fWorldPhys ) {
+    delete fDetectorStripes;
+    fDetectorStripes = nullptr;
+    anode = nullptr;
+    window = nullptr;
+    detector = nullptr;
+    filter = nullptr;
+
+    G4GeometryManager::GetInstance()->OpenGeometry(fWorldPhys);
+    G4PhysicalVolumeStore::GetInstance()->Clean();
+    G4LogicalVolumeStore::GetInstance()->Clean();
+    G4SolidStore::GetInstance()->Clean();
+
+    fWorldPhys = nullptr;
+  }
+
   G4NistManager* nistMan = G4NistManager::Instance();
 
   // --- volumes ---
@@ -46,7 +79,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4VPhysicalVolume* world_phys = new G4PVPlacement(0, G4ThreeVector(), world_log, "world", 0, false, 0);
 
 
-  anode    = createAnode(AnodeParams(), world_log);
+  anode    = createAnode(fAnodeParams, world_log);
   window   = createWindow(WindowParams(), world_log);
 
 
@@ -72,6 +105,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                                                columnesNum
                                                );
 
+  fDetectorStripes = detectorFromStripes;
   detectorFromStripes->Construct();
   /*
   DetectorParams2 dp2 = DetectorParams2();
@@ -117,22 +151,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
   // возвращаем указатель на мировой объем
-  return world_phys;
+  fWorldPhys = world_phys;
+  return fWorldPhys;
 }
 
 G4VPhysicalVolume *DetectorConstruction::createAnode(const DetectorConstruction::AnodeParams &params, G4LogicalVolume *parent)
 {
     G4NistManager* nistMan = G4NistManager::Instance();
-    G4Material* anodeMaterial = nistMan->FindOrBuildMaterial("G4_W");
+    G4Material* anodeMaterial = nistMan->FindOrBuildMaterial(params.material);
 
     G4Box* anode_box = new G4Box("anode", params.size/2, params.size/2, params.thick/2);
 
     G4LogicalVolume* anode_log = new G4LogicalVolume(anode_box, anodeMaterial, "anode");
     G4RotationMatrix* pRot = new G4RotationMatrix();
 
-    pRot->rotateX(params.angle);    
+    pRot->rotateX(params.angle);
 
-    G4VPhysicalVolume* sample_phys = new G4PVPlacement(pRot, params.pos, anode_log, "anode", parent, false, 0);
+    G4ThreeVector anodePos(0, (params.thick/2)*sin(params.angle), 20*mm + params.thick/2);
+
+    G4VPhysicalVolume* sample_phys = new G4PVPlacement(pRot, anodePos, anode_log, "anode", parent, false, 0);
     anode_log->SetVisAttributes(new G4VisAttributes(G4Colour::Yellow()));
 
     return sample_phys;
@@ -209,13 +246,12 @@ G4VPhysicalVolume *DetectorConstruction::createDetector2(const DetectorParams2 &
 void DetectorConstruction::ConstructSDandField()
 {
     // Sensitive detectors
-
-    G4String SensitiveDetector_name = "SensetiveDetectorCore";
-    SensitiveDetector* SDCore = new SensitiveDetector(SensitiveDetector_name);
-    G4SDManager::GetSDMpointer()->AddNewDetector(SDCore);
+    if ( fSDCore == nullptr ) {
+        G4String SensitiveDetector_name = "SensetiveDetectorCore";
+        fSDCore = new SensitiveDetector(SensitiveDetector_name);
+        G4SDManager::GetSDMpointer()->AddNewDetector(fSDCore);
+    }
 
     // Setting SD to all logical volumes with the same name
-    SetSensitiveDetector("DetectorCell", SDCore);
-
-
+    SetSensitiveDetector("DetectorCell", fSDCore);
 }

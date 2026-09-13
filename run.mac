@@ -2,6 +2,11 @@
 /event/verbose 0
 /tracking/verbose 0
 
+# Optional: parametric anode (see anode.mac for full example)
+#/xtube/anode/setMaterial G4_Cu
+#/xtube/anode/setThickness 2 mm
+#/xtube/anode/setAngle 20 deg
+
 /run/initialize
 
 /gun/particle e-

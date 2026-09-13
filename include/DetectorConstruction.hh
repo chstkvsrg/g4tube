@@ -5,6 +5,10 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 
+class AnodeMessenger;
+class SensitiveDetector;
+class Detector;
+
 class DetectorConstruction : public G4VUserDetectorConstruction
 {                 
   public:
@@ -15,13 +19,19 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     virtual void ConstructSDandField();
 
+    void SetAnodeMaterial(const G4String &material) { fAnodeParams.material = material; }
+    void SetAnodeThickness(G4double thickness)      { fAnodeParams.thick = thickness; }
+    void SetAnodeAngle(G4double angle)              { fAnodeParams.angle = angle; }
+
     struct AnodeParams {
+        G4String material = "G4_W";  // материал анода (имя NIST)
         G4double size  = 10*mm;  // ширина анода
         G4double thick = 5*mm;  // толщина анода
         //G4double angle = 11*deg; // угол наклона анода
         G4double angle = 11*deg; // угол наклона анода
-        G4ThreeVector pos = G4ThreeVector(0, (thick/2)*sin(angle), 20*mm + thick/2); // позиция относительно парента
     };
+
+    const AnodeParams &GetAnodeParams() const { return fAnodeParams; }
 
     struct WindowParams {
         G4double size  = 20*mm;  // радиус окна
@@ -65,6 +75,13 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* window;
     G4VPhysicalVolume* detector;
     G4VPhysicalVolume* filter;
+
+  private:
+    AnodeParams        fAnodeParams;
+    AnodeMessenger*    fAnodeMessenger;
+    G4VPhysicalVolume* fWorldPhys;
+    SensitiveDetector* fSDCore;
+    Detector*          fDetectorStripes;
 };
 
 #endif
