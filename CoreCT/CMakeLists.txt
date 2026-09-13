@@ -2,7 +2,7 @@
 
 #----------------------------------------------------------------------------
 # Setup the project
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 project(corect)
 
@@ -24,7 +24,7 @@ find_package (SQLite3 REQUIRED)
 #
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
-  find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/xeon/Geant4MT/Installation/lib")
+  find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/user/geant4/11.4.2/lib/cmake/Geant4")
 else()
   find_package(Geant4 REQUIRED)
 endif()
@@ -49,6 +49,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include/distributed/channels)
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/targets/CorePhantom/*.cc ${PROJECT_SOURCE_DIR}/src/targets/CoreVoxel/*.cc ${PROJECT_SOURCE_DIR}/src/distributed/*.cc ${PROJECT_SOURCE_DIR}/src/distributed/channels/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/targets/CorePhantom/*.hh ${PROJECT_SOURCE_DIR}/include/targets/CoreVoxel/*.hh ${PROJECT_SOURCE_DIR}/include/distributed/*.hh ${PROJECT_SOURCE_DIR}/include/distributed/channels/*.hh)
+
+#----------------------------------------------------------------------------
+# C++ standart
+#
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 #----------------------------------------------------------------------------

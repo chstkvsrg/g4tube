@@ -2,8 +2,6 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleTypes.hh"
 
-#include "QDebug"
-
 using namespace CLHEP;
 
 PhysicsList::PhysicsList():  G4VUserPhysicsList()
@@ -87,7 +85,6 @@ void PhysicsList::ConstructEM()
         G4ParticleDefinition *particle = theParticleIterator->value();
         G4ProcessManager *pmanager = particle->GetProcessManager();
         G4String particleName = particle->GetParticleName();
-        qDebug() << "Particle:" << particleName;
         if (particleName == "gamma") {
             G4PhotoElectricEffect* thePhotoElectricEffect = new G4PhotoElectricEffect();
             G4LivermorePhotoElectricModel* theLivermorePhotoElectricModel = new G4LivermorePhotoElectricModel();

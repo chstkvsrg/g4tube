@@ -9,8 +9,7 @@ project(xtube)
 #
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
-#  find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/csg/dev/thirdparty/geant4.10.06M/lib")
-   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/user/geant4/11.4.1/lib/cmake/Geant4" "/home/user/geant4/11.4.1/lib")
+   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/user/geant4/11.4.2/lib/cmake/Geant4")
 else()
   find_package(Geant4 REQUIRED)
 endif()
@@ -30,6 +29,10 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/*.h)
+
+# Exclude WIP sources (not yet finished / not part of the migration)
+list(REMOVE_ITEM sources ${PROJECT_SOURCE_DIR}/src/AnodeMessenger.cpp)
+
 #----------------------------------------------------------------------------
 # C++ standart
 # 

@@ -219,7 +219,7 @@ void CoreVoxel::Construct()
     CoreVoxelParameterisation* Paramet = new CoreVoxelParameterisation(fReference_mat->GetDensity(), fGrayscale_overage);
 
     Paramet->SetVoxelDimensions(fHalfX*mm, fHalfY*mm, fHalfZ*mm);
-    Paramet->SetNoVoxel(fVoxelsX_number, fVoxelsY_number, fVoxelsZ_number);
+    Paramet->SetNoVoxels(fVoxelsX_number, fVoxelsY_number, fVoxelsZ_number);
     Paramet->SetMaterials(fMaterials);
     Paramet->SetMaterialIndices(fMaterials_indexes);
     Paramet->SetSkipEqualMaterials(true);
