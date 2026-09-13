@@ -10,6 +10,9 @@
 # Change the default number of threads (in multi-threaded mode)
 #/run/numberOfThreads 4
 #
+# Detector configuration comes from the macro (see detectors.mac)
+/control/execute detectors.mac
+#
 # Initialize kernel
 /run/initialize
 #
