@@ -18,25 +18,27 @@
 #include "G4VisAttributes.hh" 
 #include "G4SDManager.hh"
 
-#include "Detector.hh"
 #include "AnodeMessenger.hh"
+#include "DetectorMessenger.hh"
 
 #include "G4PhysicalVolumeStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4SolidStore.hh"
 #include "G4GeometryManager.hh"
 
+#include <cmath>
+
 DetectorConstruction::DetectorConstruction()
 {
-    fAnodeMessenger = new AnodeMessenger(this);
+    fAnodeMessenger     = new AnodeMessenger(this);
+    fDetectorMessenger  = new DetectorMessenger(this);
     fWorldPhys = nullptr;
     fSDCore    = nullptr;
-    fDetectorStripes = nullptr;
 }
 
 DetectorConstruction::~DetectorConstruction()
 {
-    delete fDetectorStripes;
+    delete fDetectorMessenger;
     delete fAnodeMessenger;
 }
 
@@ -44,12 +46,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 {  
   // на пересборке геометрии (reinitializeGeometry) удаляем старую
   if ( fWorldPhys ) {
-    delete fDetectorStripes;
-    fDetectorStripes = nullptr;
     anode = nullptr;
     window = nullptr;
     detector = nullptr;
     filter = nullptr;
+    fSensitiveStripLogics.clear();
 
     G4GeometryManager::GetInstance()->OpenGeometry(fWorldPhys);
     G4PhysicalVolumeStore::GetInstance()->Clean();
@@ -82,73 +83,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   anode    = createAnode(fAnodeParams, world_log);
   window   = createWindow(WindowParams(), world_log);
 
-
-  G4double linesNum = 1;
-  G4double columnesNum = 6;
-  G4double detectorCellX = 70*mm;
-  G4double detectorCellY = 3*mm;
-  G4double detector_depth = 1*mm;
-  G4double detectorLength = detectorCellY*columnesNum;
-
-  G4ThreeVector detPos(0, -28.2*mm, 20*mm + tan(10*deg)*28.2 - detectorLength/2);
-
-  G4RotationMatrix* rot = new G4RotationMatrix();
-  rot->rotateX(90*deg);
-
-  Detector *detectorFromStripes = new Detector(world_log,
-                                               detPos,
-                                               rot,
-                                               detector_depth,
-                                               detectorCellX,
-                                               detectorCellY,
-                                               linesNum,
-                                               columnesNum
-                                               );
-
-  fDetectorStripes = detectorFromStripes;
-  detectorFromStripes->Construct();
-  /*
-  DetectorParams2 dp2 = DetectorParams2();
-  dp2.name = "detector1";
-  dp2.height = 10.263*2*mm;
-  dp2.width = 3*mm;
-
-  G4double firstPos = dp2.pos.getZ();
-
-  detector = createDetector2(dp2, world_log);
-
-  dp2.name = "detector2";
-  dp2.pos.setZ(firstPos - dp2.width);
-  createDetector2(dp2, world_log);
-
-  dp2.name = "detector3";
-  dp2.pos.setZ(firstPos - dp2.width*2);
-  createDetector2(dp2, world_log);
-
-  dp2.name = "detector4";
-  dp2.pos.setZ(firstPos - dp2.width*3);
-  createDetector2(dp2, world_log);
-
-  dp2.name = "detector5";
-  dp2.pos.setZ(firstPos - dp2.width*4);
-  createDetector2(dp2, world_log);
-
-  dp2.name = "detector6";
-  dp2.pos.setZ(firstPos - dp2.width*5);
-  createDetector2(dp2, world_log);
-
-  */
-
-
-  //filter   = createFilter(FilterParams(), world_log);
-  
-//  // --- visualisation ---
-//  // отключаем отображение мирового объема
-//  //world_log->SetVisAttributes(G4VisAttributes::Visible);
-//  // а для образца и детектора задаем цвета отображения
-//  // (по умолчанию все элементы геометрии окрашены в серый цвет)
-
-
+  // детекторы создаются из макро-конфигурации (команды /xtube/detector/add)
+  for (const auto &params : fDetectorParamsVec)
+      createDetectorPanel(params, world_log);
 
   // возвращаем указатель на мировой объем
   fWorldPhys = world_phys;
@@ -205,42 +142,50 @@ G4VPhysicalVolume *DetectorConstruction::createFilter(const DetectorConstruction
     return window_phys;
 }
 
-G4VPhysicalVolume *DetectorConstruction::createDetector(const DetectorConstruction::DetectorParams &params, G4LogicalVolume *parent)
+G4VPhysicalVolume *DetectorConstruction::createDetectorPanel(const DetectorConstruction::DetectorParams &params, G4LogicalVolume *parent)
 {
     G4NistManager* nistMan = G4NistManager::Instance();
-    G4Material* detMaterial = nistMan->FindOrBuildMaterial("G4_Galactic");
-    // детектор в виде цилиндра
-    G4Tubs* det_tube = new G4Tubs("detector", 0, params.size/2, params.thick/2, 0, 360*deg);
-    G4LogicalVolume* det_log = new G4LogicalVolume(det_tube, detMaterial, "detector");
+    G4Material* emptyMat = nistMan->FindOrBuildMaterial("G4_Galactic");
 
-    // помещаем его в мировой объем
+    G4double panelX = params.size.x();
+    G4double panelY = params.size.y();
+    G4double panelZ = params.size.z();
+    G4double stripY = panelY / params.nStrips;
+
+    // поворот панели: локальная ось Z (нормаль) совмещается с заданным вектором нормали
+    G4ThreeVector n = params.normal.unit();
     G4RotationMatrix* pRot = new G4RotationMatrix();
-    pRot->rotateX(params.angle);
-    G4VPhysicalVolume* det_phys = new G4PVPlacement(pRot, params.pos, det_log, "detector", parent, false, 0);
+    if (params.normal.mag2() > 0)
+    {
+        G4ThreeVector zAxis(0, 0, 1);
+        G4double cosA = zAxis.dot(n);
+        if (cosA >  0.999999) { /* нормаль уже совпадает с +Z */ }
+        else if (cosA < -0.999999) { pRot->rotateX(180*deg); }
+        else
+        {
+            G4double ang = std::acos(cosA);
+            G4ThreeVector axis = zAxis.cross(n);
+            pRot->rotate(ang, axis);
+        }
+    }
 
-    det_log->SetVisAttributes(new G4VisAttributes(G4Colour::Blue()));
+    // оболочка панели ("большой детектор")
+    G4Box* panel_solid = new G4Box(params.name, panelX/2, panelY/2, panelZ/2);
+    G4LogicalVolume* panel_log = new G4LogicalVolume(panel_solid, emptyMat, params.name);
+    G4VPhysicalVolume* panel_phys = new G4PVPlacement(pRot, params.center, panel_log, params.name, parent, false, 0);
 
-    return det_phys;
-}
+    // полосы: сплошные чувствительные объёмы, реплики вдоль локальной оси Y
+    G4String stripName = "DetectorStrip_" + params.name;
+    G4Box* strip_solid = new G4Box(stripName, panelX/2, stripY/2, panelZ/2);
+    G4LogicalVolume* strip_log = new G4LogicalVolume(strip_solid, emptyMat, stripName);
+    new G4PVReplica(stripName, strip_log, panel_log, kYAxis, params.nStrips, stripY, 0);
 
-G4VPhysicalVolume *DetectorConstruction::createDetector2(const DetectorParams2 &params, G4LogicalVolume *parent)
-{
-    G4NistManager* nistMan = G4NistManager::Instance();
-    G4Material* detMaterial = nistMan->FindOrBuildMaterial("G4_Galactic");
+    fSensitiveStripLogics.push_back(strip_log);
 
-    // детектор в виде паралеллепипеда
-    G4Box* det_tube = new G4Box(params.name, params.height/2, params.width/2, params.thick/2);
-    G4LogicalVolume* det_log = new G4LogicalVolume(det_tube, detMaterial, params.name);
+    panel_log->SetVisAttributes(new G4VisAttributes(G4Colour::Blue()));
+    strip_log->SetVisAttributes(new G4VisAttributes(G4Colour::Blue()));
 
-    // помещаем его в мировой объем
-    G4RotationMatrix* pRot = new G4RotationMatrix();
-    pRot->rotateX(params.angle);
-    G4VPhysicalVolume* det_phys = new G4PVPlacement(pRot, params.pos, det_log, params.name, parent, false, 0);
-
-    det_log->SetVisAttributes(new G4VisAttributes(G4Colour::Blue()));
-
-    return det_phys;
-
+    return panel_phys;
 }
 
 void DetectorConstruction::ConstructSDandField()
@@ -252,6 +197,7 @@ void DetectorConstruction::ConstructSDandField()
         G4SDManager::GetSDMpointer()->AddNewDetector(fSDCore);
     }
 
-    // Setting SD to all logical volumes with the same name
-    SetSensitiveDetector("DetectorCell", fSDCore);
+    // крепим SD к каждой полосе каждого детектора
+    for ( auto* strip_log : fSensitiveStripLogics )
+        SetSensitiveDetector(strip_log, fSDCore);
 }

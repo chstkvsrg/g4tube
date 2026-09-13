@@ -38,7 +38,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step* step,
     }    
 
     //G4int X = step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
-    G4int Y = step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(1);
+    G4int Y = step->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
 
     auto analysisManager = G4AnalysisManager::Instance();
     analysisManager->FillH1(Y, edep);

@@ -7,6 +7,9 @@
 #/xtube/anode/setThickness 2 mm
 #/xtube/anode/setAngle 20 deg
 
+# Detector configuration comes from the macro (see detectors.mac)
+/control/execute detectors.mac
+
 /run/initialize
 
 /gun/particle e-

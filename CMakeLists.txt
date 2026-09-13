@@ -50,6 +50,7 @@ set(xtube_SCRIPTS
   init_vis.mac
   run.mac
   anode.mac
+  detectors.mac
   vis.mac
   )
 

@@ -5,12 +5,14 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 
+#include <vector>
+
 class AnodeMessenger;
+class DetectorMessenger;
 class SensitiveDetector;
-class Detector;
 
 class DetectorConstruction : public G4VUserDetectorConstruction
-{                 
+{
   public:
     DetectorConstruction();
     ~DetectorConstruction();
@@ -24,52 +26,45 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetAnodeAngle(G4double angle)              { fAnodeParams.angle = angle; }
 
     struct AnodeParams {
-        G4String material = "G4_W";  // материал анода (имя NIST)
-        G4double size  = 10*mm;  // ширина анода
-        G4double thick = 5*mm;  // толщина анода
-        //G4double angle = 11*deg; // угол наклона анода
-        G4double angle = 11*deg; // угол наклона анода
+        G4String material = "G4_W";
+        G4double size  = 10*mm;
+        G4double thick = 5*mm;
+        G4double angle = 11*deg;
     };
 
     const AnodeParams &GetAnodeParams() const { return fAnodeParams; }
 
     struct WindowParams {
-        G4double size  = 20*mm;  // радиус окна
-        G4double thick = 0.8*mm; // толщина окна
-        G4double angle = 90*deg; // угол поворота
-        G4ThreeVector pos = G4ThreeVector(0, -7*mm, 20*mm); // позиция относительно парента
+        G4double size  = 20*mm;
+        G4double thick = 0.8*mm;
+        G4double angle = 90*deg;
+        G4ThreeVector pos = G4ThreeVector(0, -7*mm, 20*mm);
     };
 
     struct FilterParams {
-        G4double size  = 35*mm;  // радиус окна
-        G4double thick = 10.0*mm; // толщина окна
-        G4double angle = 90*deg; // угол поворота
-        G4ThreeVector pos = G4ThreeVector(0, -17.8*mm, 20*mm); // позиция относительно парента
+        G4double size  = 35*mm;
+        G4double thick = 10.0*mm;
+        G4double angle = 90*deg;
+        G4ThreeVector pos = G4ThreeVector(0, -17.8*mm, 20*mm);
     };
 
+    // детектор: панель из N чувствительных полос; локальная ось Y разбивается на полосы
     struct DetectorParams {
-        G4double size  = 35*mm;  // радиус
-        G4double thick = 0.8*mm; // толщина
-        G4double angle = 90*deg; // угол поворота
-        //G4ThreeVector pos = G4ThreeVector(0, -12.2*mm, 20*mm); // позиция относительно парента 2 mm alum
-        //G4ThreeVector pos = G4ThreeVector(0, -8.2*mm, 20*mm); // позиция относительно парента  0 mm alum
-        G4ThreeVector pos = G4ThreeVector(0, -28.2*mm, 20*mm); // позиция относительно парента
+        G4String      name;
+        G4ThreeVector center;   // позиция центра панели (mm)
+        G4ThreeVector size;     // полные размеры панели (mm), полосы вдоль local Y
+        G4ThreeVector normal;   // нормаль к плоскости панели (любой вектор, нормируется)
+        G4int         nStrips;  // число полос по local Y
     };
 
-    struct DetectorParams2 {
-        G4String name = "detector2";
-        G4double height  = 70*mm;  // высота
-        G4double width  = 3*mm;  // ширина
-        G4double thick = 0.8*mm; // толщина
-        G4double angle = 90*deg; // угол поворота       
-        G4ThreeVector pos = G4ThreeVector(0, -28.2*mm, 20*mm + tan(10*deg)*28.2 - width/2); // позиция относительно парента
-    };
+    void AddDetector(const DetectorParams& params) { fDetectorParamsVec.push_back(params); }
+    void ClearDetectors()                          { fDetectorParamsVec.clear(); }
+    const std::vector<DetectorParams>& GetDetectors() const { return fDetectorParamsVec; }
 
-    G4VPhysicalVolume*  createAnode(const AnodeParams &params, G4LogicalVolume *parent);
-    G4VPhysicalVolume*  createWindow(const WindowParams &params, G4LogicalVolume *parent);
-    G4VPhysicalVolume*  createFilter(const FilterParams &params, G4LogicalVolume *parent);
-    G4VPhysicalVolume*  createDetector(const DetectorParams &params, G4LogicalVolume *parent);
-    G4VPhysicalVolume*  createDetector2(const DetectorParams2 &params, G4LogicalVolume *parent);
+    G4VPhysicalVolume* createAnode(const AnodeParams &params, G4LogicalVolume *parent);
+    G4VPhysicalVolume* createWindow(const WindowParams &params, G4LogicalVolume *parent);
+    G4VPhysicalVolume* createFilter(const FilterParams &params, G4LogicalVolume *parent);
+    G4VPhysicalVolume* createDetectorPanel(const DetectorParams &params, G4LogicalVolume *parent);
 
     G4VPhysicalVolume* anode;
     G4VPhysicalVolume* window;
@@ -77,12 +72,13 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* filter;
 
   private:
-    AnodeParams        fAnodeParams;
-    AnodeMessenger*    fAnodeMessenger;
-    G4VPhysicalVolume* fWorldPhys;
-    SensitiveDetector* fSDCore;
-    Detector*          fDetectorStripes;
+    AnodeParams                  fAnodeParams;
+    AnodeMessenger*              fAnodeMessenger;
+    DetectorMessenger*           fDetectorMessenger;
+    G4VPhysicalVolume*           fWorldPhys;
+    SensitiveDetector*           fSDCore;
+    std::vector<DetectorParams>  fDetectorParamsVec;
+    std::vector<G4LogicalVolume*> fSensitiveStripLogics;
 };
 
 #endif
-
