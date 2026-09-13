@@ -23,7 +23,7 @@ cd CoreCT && mkdir build && cd build && cmake .. && make -j
 
 **Geant4 11.4.2** is installed at `/home/user/geant4/11.4.2` (Qt6, MT, datasets in `share/Geant4/data`). Both `CMakeLists.txt` use `find_package(Geant4 HINTS /home/user/geant4/11.4.2/lib/cmake/Geant4)`. Geant4 11 requires C++17 (`CMAKE_CXX_STANDARD 17` is set in both projects).
 
-**Before running**, source the env script so the `G4*DATA` variables point to the 11.4.2 datasets (a stale system 10.7.3 install exports old values that break init with `G4AugerData::LoadData` failures):
+**Before running**, make sure the `G4*DATA` variables point to the 11.4.2 datasets. `~/.bashrc` already exports the 11.4.2 paths (new terminals work out of the box). If a stale system 10.7.3 env is active, it breaks init with `G4AugerData::LoadData` failures / undefined symbols — fix by re-sourcing or opening a new terminal:
 
 ```bash
 source /home/user/geant4/11.4.2/bin/geant4.sh
