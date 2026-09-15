@@ -9,6 +9,7 @@
 
 class AnodeMessenger;
 class DetectorMessenger;
+class FilterMessenger;
 class SensitiveDetector;
 
 class DetectorConstruction : public G4VUserDetectorConstruction
@@ -24,6 +25,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetAnodeMaterial(const G4String &material) { fAnodeParams.material = material; }
     void SetAnodeThickness(G4double thickness)      { fAnodeParams.thick = thickness; }
     void SetAnodeAngle(G4double angle)              { fAnodeParams.angle = angle; }
+
+    void SetFilterMaterial(const G4String &material) { fFilterParams.material = material; }
+    void SetFilterThickness(G4double thickness)      { fFilterParams.thick = thickness; }
+    void SetFilterDiameter(G4double diameter)        { fFilterParams.size = diameter; }
+    void SetFilterPosition(const G4ThreeVector &pos) { fFilterParams.pos = pos; }
+    void SetFilterNormal(const G4ThreeVector &normal) { fFilterParams.normal = normal; }
 
     struct AnodeParams {
         G4String material = "G4_W";
@@ -42,11 +49,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     };
 
     struct FilterParams {
-        G4double size  = 35*mm;
-        G4double thick = 10.0*mm;
-        G4double angle = 90*deg;
-        G4ThreeVector pos = G4ThreeVector(0, -17.8*mm, 20*mm);
+        G4String      material = "G4_Al";
+        G4double      size     = 35*mm;                       // диаметр пластины
+        G4double      thick    = 10.0*mm;                     // толщина пластины
+        G4ThreeVector normal   = G4ThreeVector(0, -1, 0);     // нормаль к плоскости
+        G4ThreeVector pos      = G4ThreeVector(0, -17.8*mm, 20*mm);
     };
+
+    const FilterParams &GetFilterParams() const { return fFilterParams; }
 
     // детектор: панель из N чувствительных полос; локальная ось Y разбивается на полосы
     struct DetectorParams {
@@ -75,6 +85,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     AnodeParams                  fAnodeParams;
     AnodeMessenger*              fAnodeMessenger;
     DetectorMessenger*           fDetectorMessenger;
+    FilterMessenger*             fFilterMessenger;
+    FilterParams                 fFilterParams;
     G4VPhysicalVolume*           fWorldPhys;
     SensitiveDetector*           fSDCore;
     std::vector<DetectorParams>  fDetectorParamsVec;

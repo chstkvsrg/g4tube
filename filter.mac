@@ -1,0 +1,27 @@
+# Example: parametric filter (circular plate) via UI commands.
+# Set these BEFORE /run/initialize (or any time before a beam run,
+# then all set* commands take effect on the NEXT geometry build).
+#
+# Material name: any G4 NIST name, e.g. G4_Al, G4_Cu, G4_Fe, G4_Pb
+# (NIST materials catalog: https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/material.html)
+/xtube/filter/setMaterial G4_Al
+
+# Plate thickness (default 10 mm)
+/xtube/filter/setThickness 0.5 mm
+
+# Plate diameter (default 35 mm)
+/xtube/filter/setDiameter 25 mm
+
+# Center position of the plate in mm (default 0 -17.8 20 mm)
+/xtube/filter/setPosition 0 -17.8 20 mm
+
+# Normal direction to the plate plane (unit-ish vector, normalized internally).
+#   (0,-1,0) -> plate laid flat, intercepting the beam path (original geometry)
+#   (0, 0,1) -> plate plane perpendicular to the beam (X-Y plane view)
+/xtube/filter/setNormal 0 -1 0
+
+/run/initialize
+
+/gun/particle e-
+/gun/energy 160 keV
+/run/beamOn 1000

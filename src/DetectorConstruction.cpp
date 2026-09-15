@@ -20,6 +20,7 @@
 
 #include "AnodeMessenger.hh"
 #include "DetectorMessenger.hh"
+#include "FilterMessenger.hh"
 
 #include "G4PhysicalVolumeStore.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -32,6 +33,7 @@ DetectorConstruction::DetectorConstruction()
 {
     fAnodeMessenger     = new AnodeMessenger(this);
     fDetectorMessenger  = new DetectorMessenger(this);
+    fFilterMessenger    = new FilterMessenger(this);
     fWorldPhys = nullptr;
     fSDCore    = nullptr;
 }
@@ -40,6 +42,7 @@ DetectorConstruction::~DetectorConstruction()
 {
     delete fDetectorMessenger;
     delete fAnodeMessenger;
+    delete fFilterMessenger;
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
@@ -82,6 +85,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   anode    = createAnode(fAnodeParams, world_log);
   window   = createWindow(WindowParams(), world_log);
+
+  // фильтр (круглая пластина) из макро-конфигурации; material="" отключает фильтр
+  if ( fFilterParams.material != "" )
+      filter = createFilter(fFilterParams, world_log);
 
   // детекторы создаются из макро-конфигурации (команды /xtube/detector/add)
   for (const auto &params : fDetectorParamsVec)
@@ -130,16 +137,32 @@ G4VPhysicalVolume *DetectorConstruction::createWindow(const DetectorConstruction
 G4VPhysicalVolume *DetectorConstruction::createFilter(const DetectorConstruction::FilterParams &params, G4LogicalVolume *parent)
 {
     G4NistManager* nistMan = G4NistManager::Instance();
-    G4Material* anodeMaterial = nistMan->FindOrBuildMaterial("G4_Al");
-    G4Tubs* filter_tube = new G4Tubs("filter", 0, params.size/2, params.thick/2, 0, 360*deg);
-    G4LogicalVolume* filter_log = new G4LogicalVolume(filter_tube, anodeMaterial, "filter");
+    G4Material* filterMat = nistMan->FindOrBuildMaterial(params.material);
 
+    G4Tubs* filter_tube = new G4Tubs("filter", 0, params.size/2, params.thick/2, 0, 360*deg);
+    G4LogicalVolume* filter_log = new G4LogicalVolume(filter_tube, filterMat, "filter");
+
+    // поворот: локальная ось Z (нормаль к пластине) совмещается с заданным вектором нормали
+    G4ThreeVector n = params.normal.unit();
     G4RotationMatrix* pRot = new G4RotationMatrix();
-    pRot->rotateX(params.angle);
-    G4VPhysicalVolume* window_phys = new G4PVPlacement(pRot, params.pos, filter_log, "filter", parent, false, 0);
+    if (params.normal.mag2() > 0)
+    {
+        G4ThreeVector zAxis(0, 0, 1);
+        G4double cosA = zAxis.dot(n);
+        if (cosA >  0.999999) { /* нормаль уже совпадает с +Z */ }
+        else if (cosA < -0.999999) { pRot->rotateX(180*deg); }
+        else
+        {
+            G4double ang = std::acos(cosA);
+            G4ThreeVector axis = zAxis.cross(n);
+            pRot->rotate(ang, axis);
+        }
+    }
+
+    G4VPhysicalVolume* filter_phys = new G4PVPlacement(pRot, params.pos, filter_log, "filter", parent, false, 0);
 
     filter_log->SetVisAttributes(new G4VisAttributes(G4Colour::Red()));
-    return window_phys;
+    return filter_phys;
 }
 
 G4VPhysicalVolume *DetectorConstruction::createDetectorPanel(const DetectorConstruction::DetectorParams &params, G4LogicalVolume *parent)

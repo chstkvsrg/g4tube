@@ -7,6 +7,13 @@
 #/xtube/anode/setThickness 2 mm
 #/xtube/anode/setAngle 20 deg
 
+# Optional: parametric filter (see filter.mac for full example)
+#/xtube/filter/setMaterial G4_Al
+#/xtube/filter/setThickness 0.5 mm
+#/xtube/filter/setDiameter 25 mm
+#/xtube/filter/setPosition 0 -17.8 20 mm
+#/xtube/filter/setNormal 0 -1 0
+
 # Detector configuration comes from the macro (see detectors.mac)
 /control/execute detectors.mac
 
