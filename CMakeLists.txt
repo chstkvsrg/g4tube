@@ -9,7 +9,7 @@ project(xtube)
 #
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
-   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/home/user/geant4/11.4.2/lib/cmake/Geant4")
+   find_package(Geant4 REQUIRED ui_all vis_all HINTS "/opt/Geant4/Geant4-v11.4.2/lib/cmake/Geant4")
 else()
   find_package(Geant4 REQUIRED)
 endif()

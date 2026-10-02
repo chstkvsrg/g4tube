@@ -21,21 +21,25 @@ mkdir build && cd build && cmake .. && make -j
 cd CoreCT && mkdir build && cd build && cmake .. && make -j
 ```
 
-**Geant4 11.4.2** is installed at `/home/user/geant4/11.4.2` (Qt6, MT, datasets in `share/Geant4/data`). Both `CMakeLists.txt` use `find_package(Geant4 HINTS /home/user/geant4/11.4.2/lib/cmake/Geant4)`. Geant4 11 requires C++17 (`CMAKE_CXX_STANDARD 17` is set in both projects).
+**Geant4 11.4.2** is installed at `/opt/Geant4/Geant4-v11.4.2` (Arch `geant4-full` package; Qt6, MT, OpenGL). Both `CMakeLists.txt` use `find_package(Geant4 HINTS /opt/Geant4/Geant4-v11.4.2/lib/cmake/Geant4)`, so a bare `cmake ..` finds it — no `-DGeant4_DIR` needed. Geant4 11 requires C++17 (`CMAKE_CXX_STANDARD 17` is set in both projects).
 
-**Before running**, make sure the `G4*DATA` variables point to the 11.4.2 datasets. `~/.bashrc` already exports the 11.4.2 paths (new terminals work out of the box). If a stale system 10.7.3 env is active, it breaks init with `G4AugerData::LoadData` failures / undefined symbols — fix by re-sourcing or opening a new terminal:
+**Datasets** are *not* in `share/Geant4/data` — the Arch package keeps them in `/opt/Geant4/Libraries/<Dataset><version>/` (~3.3 GB: `G4NDL4.7.1`, `G4EMLOW8.8`, `G4TENDL1.4`, `G4URRPT1.1`, `RealSurface2.2`, `G4NUDEXLIB1.0`, `G4CHANNELING2.0`, plus level-gamma/radioactive/particle-HP/etc.). `geant4.sh` only sets `GEANT4_DATA_DIR` and leaves every `G4*DATA` export commented out, so `~/.bashrc` sets all 15 of them explicitly. New terminals work out of the box; a stale env (e.g. a leftover 10.7.3) breaks init with `G4Exception em0003` / `G4AugerData::LoadData` failures — fix by opening a new terminal or:
 
 ```bash
-source /home/user/geant4/11.4.2/bin/geant4.sh
+source /opt/Geant4/Geant4-v11.4.2/bin/geant4.sh
 ```
 
-**CoreCT requires `gengetopt`** — it generates CLI parser code from `CoreCT/corect.ggo` at build time. If missing, install it (`apt install gengetopt`) or the build fails with a CMake error.
+Neither project's current physics list reads external data (xtube uses Livermore EM, which is self-contained), so missing `G4*DATA` shows up only when switching to `option4`/Auger/hadronic models. To sanity-check a dataset env, build and run Geant4's own `TestEm11` (option4 + Auger + EMLOW) with `-DGeant4_DIR=/opt/Geant4/Geant4-v11.4.2/lib/cmake/Geant4`; a bogus `G4LEDATA` should abort with `em0003`.
+
+**CoreCT requires `gengetopt`** — it generates CLI parser code from `CoreCT/corect.ggo` at build time. It is **not currently installed** on this machine, so the CoreCT build fails at configure; install with `pacman -S gengetopt` (this is Arch/Omarchy, not apt).
 
 ## Running simulations
 
 - **xtube**: `./xtube` (interactive) or `./xtube run.mac` (batch). Outputs timestamped `h1_*.csv` histograms.
 - **corect**: `./corect -m runct.mac -a <angle>` for single angle. Full CT scan: `CoreCT/runct.sh` (runs 0–359°).
 - **corect CLI options**: `-t CorePhantom|CoreVoxel`, `-o <output-dir>`, `-n <cores>`, `-h` (holder), `-d` (distributed mode).
+
+Run xtube from the **repo root**: `run.mac` does `/control/execute detectors.mac` with a relative path, and histograms land in the CWD. `h1_*.csv` is not in `.gitignore`, so runs dirty the worktree — delete them or ignore them.
 
 Macro files (`.mac`) are Geant4 command scripts, not Makefiles.
 

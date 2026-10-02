@@ -1,0 +1,26 @@
+/run/verbose 2
+/control/execute detectors.mac
+/xtube/detector/add detector 0 -28.2 15.9724 70 18 1 0 -1 0 6
+/run/initialize
+/control/execute vis.mac
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/vis/open OGL
+/vis/sceneHandler/create OGL
+/vis/viewer/create ! ! 600x600-0+0
+/vis/viewer/refresh
+/vis/drawVolume
+/vis/scene/create
+/vis/scene/add/volume world -1 -1 none m 0 0 0 0 0 0
+/vis/sceneHandler/attach
+/vis/scene/add/trajectories
+/tracking/storeTrajectory 1
+/vis/scene/notifyHandlers
+/vis/scene/endOfEventAction accumulate
+/gun/particle e-
+/gun/energy 160 keV
+/run/beamOn 100
+/vis/scene/notifyHandlers scene-0
+/analysis/h1/getVector
+/analysis/h2/getVector
