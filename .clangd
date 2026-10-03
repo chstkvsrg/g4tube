@@ -1,0 +1,11 @@
+Index:
+  Background: Build
+
+CompileFlags:
+  Add:
+    - "-std=c++17"
+    - "-Wall"
+    - "-I."            # Искать инклуды в корне проекта
+    - "-Isrc"          # Искать инклуды в папке src
+    - "-Iinclude"      # Искать инклуды в папке include (если есть)
+  Compiler: g++
