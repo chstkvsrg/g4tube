@@ -3,8 +3,6 @@
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
 #include "PhysicsList.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
 
 // заголовочные файлы для классов из библиотеки Geant4
 // #include "G4RunManager.hh"
@@ -13,7 +11,6 @@
 #include "G4UIExecutive.hh"
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
-#include "Randomize.hh"
 // файл с фунциями для работы с системным временем
 #include <ctime>
 
